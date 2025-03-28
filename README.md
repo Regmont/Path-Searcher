@@ -1,0 +1,1 @@
+Поменять borderCounter, height, length
