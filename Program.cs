@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using static Program;
 
 class Program
 {
@@ -14,7 +11,7 @@ class Program
         public int Y { get; set; }
         public float Value { get; set; }
 
-        public static Point2D[,] CreateMatrix(bool[,] grid, Point2D start, Point2D finish)
+        public static Point2D[,] CreateMatrix(bool[,] grid, Point2D start, Point2D finish, ref int borderCounter)
         {
             int height = grid.GetLength(0);
             int length = grid.GetLength(1);
@@ -27,6 +24,7 @@ class Program
                     if (grid[i, j])
                     {
                         matrix[i, j] = new Point2D() { X = j, Y = i, Value = float.MaxValue };
+                        borderCounter++;
                     }
                     else
                     {
@@ -51,11 +49,11 @@ class Program
 
     static bool[,] GetBoolGrid(string[] gamefield, int height, int length)
     {
-        bool[,] grid = new bool[gamefield.Count(), gamefield[0].Length];
+        bool[,] grid = new bool[height, length];
 
-        for (int i = 0; i < gamefield.Count(); i++)
+        for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < gamefield[0].Length; j++)
+            for (int j = 0; j < length; j++)
             {
                 if (gamefield[i][j].Equals(' '))
                 {
@@ -88,19 +86,8 @@ class Program
     {
         int height = grid.GetLength(0);
         int length = grid.GetLength(1);
-        Point2D[,] matrix = Point2D.CreateMatrix(grid, start, finish);
         int borderCounter = 0;
-
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < length; j++)
-            {
-                if (grid[i, j])
-                {
-                    borderCounter++;
-                }
-            }
-        }
+        Point2D[,] matrix = Point2D.CreateMatrix(grid, start, finish, ref borderCounter);
 
         List<Point2D> pointsInCheck = new List<Point2D>() { finish };
         List<Point2D> checkedPoints = new List<Point2D>();
@@ -308,8 +295,15 @@ class Program
         };
 
         bool[,] grid = GetBoolGrid(gamefield, gamefield.Count(), gamefield[0].Length);
-        List<Point2D> path = FindPath(grid, start, finish);
-        PrintGameField(grid);
-        PathGo(path);
+        try
+        {
+            List<Point2D> path = FindPath(grid, start, finish);
+            PrintGameField(grid);
+            PathGo(path);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }
